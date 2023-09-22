@@ -1,18 +1,20 @@
 using System.Net;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Routing.Template;
+using VerticalMinimalApi.Common.Error;
 
 namespace VerticalMinimalApi.Common.Base;
 
 public sealed class BaseResponse<T> where T: class
 {
     public T? Data { get; private set; }
-    public string[] Errors { get; private set; }
+    public ICollection<BaseError>? Errors { get; private set; }
 
     [JsonIgnore]
-    public HttpStatusCode StatusCode { get; private set; }
+    private HttpStatusCode StatusCode { get; set; }
     
-    private BaseResponse (T? data, string[] errors, HttpStatusCode statusCode)
+    private BaseResponse (T? data, ICollection<BaseError>? errors, HttpStatusCode statusCode)
     {
         Data = data;
         Errors = errors;
@@ -21,10 +23,10 @@ public sealed class BaseResponse<T> where T: class
 
     public static BaseResponse<T> Success(T data, HttpStatusCode statusCode = HttpStatusCode.OK)
     {
-        return new BaseResponse<T>(data, Array.Empty<string>(), statusCode: statusCode);
+        return new BaseResponse<T>(data, null, statusCode: statusCode);
     }
-    
-    public static BaseResponse<T> Failure(string[] errors, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+
+    public static BaseResponse<T> Failure(ICollection<BaseError> errors, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
     {
         return new BaseResponse<T>(null, errors, statusCode);
     }
