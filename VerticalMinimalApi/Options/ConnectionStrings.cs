@@ -2,5 +2,7 @@ namespace VerticalMinimalApi.Options;
 
 public class ConnectionStrings
 {
-    public string DefaultConnection { get; set; }
+    public required string DefaultConnection { get; set; }
+    public required string Redis { get; set; }
+
 }

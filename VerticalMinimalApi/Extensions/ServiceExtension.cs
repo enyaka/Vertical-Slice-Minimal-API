@@ -6,6 +6,7 @@ using Mapster;
 using MapsterMapper;
 using MediatR;
 using Serilog;
+using StackExchange.Redis;
 using VerticalMinimalApi.Common.Middlewares;
 using VerticalMinimalApi.Context;
 using VerticalMinimalApi.Options;
@@ -19,22 +20,25 @@ public static class ServiceExtension
     {
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration).CreateLogger();
+        services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
+
         services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(Program).Assembly));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
-
-        services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
+        
+        
         services.AddDbContext<MinimalDbContext>();
+        services.AddStackExchangeRedisCache(redisOptions => 
+            redisOptions.Configuration = configuration.GetConnectionString("Redis"));
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.DefaultIgnoreCondition
             = JsonIgnoreCondition.WhenWritingNull);
 
-
+        //Mapster configuration
         var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
         typeAdapterConfig.Scan(Assembly.GetExecutingAssembly());
         services.AddSingleton<IMapper>(new Mapper(typeAdapterConfig));
-
+        
         services.AddCarter();
 
         services.AddRepositories();
@@ -45,6 +49,7 @@ public static class ServiceExtension
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
+        services.Decorate<IUserRepository, CachedUserRepository>();
         return services;
     }
 }
