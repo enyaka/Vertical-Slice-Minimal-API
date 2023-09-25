@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace VerticalMinimalApi.Models;
 
-namespace VerticalMinimalApi.Models;
-
-public partial class User
+public class User
 {
     public Guid Id { get; set; }
 

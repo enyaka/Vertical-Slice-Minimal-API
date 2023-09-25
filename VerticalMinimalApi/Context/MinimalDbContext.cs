@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using VerticalMinimalApi.Models;
-
 using VerticalMinimalApi.Options;
+
 namespace VerticalMinimalApi.Context;
 
 public partial class MinimalDbContext : DbContext
 {
     private readonly IOptions<ConnectionStrings> _connectionStrings;
+
     public MinimalDbContext(IOptions<ConnectionStrings> connectionStrings)
     {
         _connectionStrings = connectionStrings;
@@ -23,7 +23,9 @@ public partial class MinimalDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql(_connectionStrings.Value.DefaultConnection);
+    {
+        optionsBuilder.UseNpgsql(_connectionStrings.Value.DefaultConnection);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -3,16 +3,9 @@
 <#@ assembly name="Microsoft.EntityFrameworkCore.Design" #>
 <#@ assembly name="Microsoft.EntityFrameworkCore.Relational" #>
 <#@ assembly name="Microsoft.Extensions.DependencyInjection.Abstractions" #>
-<#@ parameter name="EntityType" type="Microsoft.EntityFrameworkCore.Metadata.IEntityType" #>
-<#@ parameter name="Options" type="Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions" #>
-<#@ parameter name="NamespaceHint" type="System.String" #>
-<#@ import namespace="System.Collections.Generic" #>
-<#@ import namespace="System.ComponentModel.DataAnnotations" #>
-<#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Text" #>
-<#@ import namespace="Microsoft.EntityFrameworkCore" #>
-<#@ import namespace="Microsoft.EntityFrameworkCore.Design" #>
-<#@ import namespace="Microsoft.Extensions.DependencyInjection" #>
+<#@ parameter name="EntityType { get; }" type="Microsoft.EntityFrameworkCore.Metadata.IEntityType" #>
+<#@ parameter name="Options { get; }" type="Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions" #>
+<#@ parameter name="NamespaceHint { get; }" type="System.String" #>
 <#
     if (EntityType.IsSimpleManyToManyJoinEntityType())
     {
@@ -79,7 +72,8 @@ public partial class <#= EntityType.Name #>
         {
 #>
     /// <summary>
-    /// <#= code.XmlComment(property.GetComment(), indent: 1) #>
+    /// <#=
+                    code.XmlComment(property.GetComment(), indent: 1) #>
     /// </summary>
 <#
         }
@@ -87,7 +81,10 @@ public partial class <#= EntityType.Name #>
         if (Options.UseDataAnnotations)
         {
             var dataAnnotations = property.GetDataAnnotations(annotationCodeGenerator)
-                .Where(a => !(a.Type == typeof(RequiredAttribute) && Options.UseNullableReferenceTypes && !property.ClrType.IsValueType));
+                .Where(
+                    a =>
+                        !(a.Type == typeof(RequiredAttribute) && Options.UseNullableReferenceTypes &&
+                          !property.ClrType.IsValueType));
             foreach (var dataAnnotation in dataAnnotations)
             {
 #>
@@ -99,7 +96,8 @@ public partial class <#= EntityType.Name #>
         usings.AddRange(code.GetRequiredUsings(property.ClrType));
 
         var needsNullable = Options.UseNullableReferenceTypes && property.IsNullable && !property.ClrType.IsValueType;
-        var needsInitializer = Options.UseNullableReferenceTypes && !property.IsNullable && !property.ClrType.IsValueType;
+        var needsInitializer = Options.UseNullableReferenceTypes && !property.IsNullable &&
+                               !property.ClrType.IsValueType;
 #>
     public <#= code.Reference(property.ClrType) #><#= needsNullable ? "?" : "" #> <#= property.Name #> { get; set; }<#= needsInitializer ? " = null!;" : "" #>
 <#
@@ -129,8 +127,10 @@ public partial class <#= EntityType.Name #>
         }
         else
         {
-            var needsNullable = Options.UseNullableReferenceTypes && !(navigation.ForeignKey.IsRequired && navigation.IsOnDependent);
-            var needsInitializer = Options.UseNullableReferenceTypes && navigation.ForeignKey.IsRequired && navigation.IsOnDependent;
+            var needsNullable = Options.UseNullableReferenceTypes &&
+                                !(navigation.ForeignKey.IsRequired && navigation.IsOnDependent);
+            var needsInitializer = Options.UseNullableReferenceTypes && navigation.ForeignKey.IsRequired &&
+                                   navigation.IsOnDependent;
 #>
     public virtual <#= targetType #><#= needsNullable ? "?" : "" #> <#= navigation.Name #> { get; set; }<#= needsInitializer ? " = null!;" : "" #>
 <#

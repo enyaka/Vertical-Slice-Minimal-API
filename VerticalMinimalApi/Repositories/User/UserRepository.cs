@@ -3,7 +3,7 @@ using VerticalMinimalApi.Context;
 
 namespace VerticalMinimalApi.Repositories.User;
 
-public class UserRepository: IUserRepository
+public class UserRepository : IUserRepository
 {
     private readonly MinimalDbContext _context;
 
