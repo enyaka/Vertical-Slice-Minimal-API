@@ -14,13 +14,16 @@ public static class ServiceExtension
     public static IServiceCollection MapServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
         services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
         services.AddDbContext<MinimalDbContext>();
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.DefaultIgnoreCondition
             = JsonIgnoreCondition.WhenWritingNull);
+        
         var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
         typeAdapterConfig.Scan(Assembly.GetExecutingAssembly());
         services.AddSingleton<IMapper>(new Mapper(typeAdapterConfig));
+        
         services.AddCarter();
 
         services.AddRepositories();

@@ -6,7 +6,7 @@ using VerticalMinimalApi.Common.Error;
 
 namespace VerticalMinimalApi.Common.Base;
 
-public sealed class BaseResponse<T> where T: class
+public class BaseResponse<T> where T: class
 {
     public T? Data { get; private set; }
     public ICollection<BaseError>? Errors { get; private set; }

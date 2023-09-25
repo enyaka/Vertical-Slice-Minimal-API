@@ -30,6 +30,17 @@ public static class CreateUser
             user = await _userRepository.GetUserByEmail(request.Email, cancellationToken);
             return BaseResponse<CreateUserResponse>.Success(_mapper.From(user).AddParameters("token", "waklmdsakmlfdkmsl").AdaptToType<CreateUserResponse>());
         }
+        
+        public class CreateUserMapConfig: IRegister
+        {
+            public void Register(TypeAdapterConfig config)
+            {
+                config.NewConfig<User, CreateUserResponse>()
+                    .Map(d => d.Token, src => MapContext.Current!.Parameters["token"]);
+                config.NewConfig<CreateUser.CreateUserCommand, User>()
+                    .Map(d => d.Id, src => Guid.NewGuid());
+            }
+        }
     }
 }
 public class CreateUserEndpoint : ICarterModule

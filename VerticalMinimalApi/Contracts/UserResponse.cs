@@ -1,4 +1,4 @@
-namespace VerticalMinimalApi.Features.Users.Common;
+namespace VerticalMinimalApi.Contracts;
 
 public class UserResponse
 {
